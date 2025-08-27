@@ -1,2 +1,3 @@
 # Notabena
-The Go note-taking app.
+
+Notabena is the free and open source note-taking app, written in Go.

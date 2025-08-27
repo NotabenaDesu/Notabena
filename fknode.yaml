@@ -1,0 +1,8 @@
+destroy:
+  intensities:
+    - hard
+  targets:
+    - dist/
+    - out/
+    - build/
+    - .cache/
