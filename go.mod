@@ -2,7 +2,7 @@ module notabena
 
 go 1.23.0
 
-require github.com/rivo/tview v0.0.0-20250625164341-a4a78f1e05cb
+require github.com/rivo/tview v0.42.0
 
 require (
 	github.com/gdamore/encoding v1.0.1 // indirect
