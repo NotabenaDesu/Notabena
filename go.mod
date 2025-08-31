@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/ncruces/go-sqlite3 v0.28.0
-	github.com/rivo/tview v0.0.0-20250625164341-a4a78f1e05cb
+	github.com/rivo/tview v0.42.0
 )
 
 require (
