@@ -31,7 +31,7 @@ func InitDb(file string) {
 	);`)
 }
 
-func GetNotes(file string) {
+func GetNotes(file string) []*Note {
 	// TODO: finish rewriting this from 0.2
 	// reference: https://github.com/The-Notabena-Organization/notabena-public-archive/blob/dev/src/api.rs
 	db, err := sql.Open("sqlite3", file)
@@ -41,6 +41,7 @@ func GetNotes(file string) {
 	defer db.Close()
 	notes := []*Note{}
 	sqlscan.Select(context.Background(), db, &notes, "SELECT * FROM saved_notes;")
+	return notes
 }
 
 func (note Note) Save(file string) {
