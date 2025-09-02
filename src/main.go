@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/georgysavva/scany/v2/sqlscan"
@@ -46,7 +47,7 @@ func main() {
 	updateInfo := func() {
 		fromRow, fromColumn, toRow, toColumn := textArea.GetCursor()
 		if fromRow == toRow && fromColumn == toColumn {
-			position.SetText(fmt.Sprintf("Row: [yellow]%d[white], Column: [yellow]%d ", fromRow, fromColumn))
+			position.SetText(fmt.Sprintf("Note [yellow]#%d[white], Row: [yellow]%d[white], Column: [yellow]%d ", len(GetNotes(path)), fromRow, fromColumn))
 		} else {
 			position.SetText(fmt.Sprintf("[red]From[white] Row: [yellow]%d[white], Column: [yellow]%d[white] - [red]To[white] Row: [yellow]%d[white], To Column: [yellow]%d ", fromRow, fromColumn, toRow, toColumn))
 		}
@@ -55,12 +56,16 @@ func main() {
 	textArea.SetMovedFunc(updateInfo)
 	updateInfo()
 	mainView := tview.NewGrid().SetRows(0, 1).AddItem(textArea, 0, 0, 1, 2, 0, 0, true).AddItem(info, 1, 0, 1, 1, 0, 0, false).AddItem(position, 1, 1, 1, 1, 0, 0, false)
-	saved := tview.NewTextView().SetDynamicColors(true).SetText(`[green]Saved successfully!
+	saved := tview.NewTextView().SetDynamicColors(true).SetText(`[green]Ready to go!
+[blue]Please give your note a name.`)
 
-[blue]Press Enter to close Notabena!`)
-
-	savedPopup := tview.NewFrame(saved).SetBorders(1, 1, 0, 0, 2, 2)
-	savedPopup.SetBorder(true).SetTitle("Success").SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	savedPopup := tview.NewGrid()
+	savedPopup.SetBorder(true).SetTitle("Success")
+	savedPopup.AddItem(saved, 0, 0, 1, 2, 0, 0, false)
+	titleInput := tview.NewTextArea().SetWrap(false).SetPlaceholder("Title here")
+	titleInput.SetTitle("Title your note").SetBorder(true)
+	savedPopup.AddItem(titleInput, 1, 0, 5, 3, 0, 0, true)
+	savedPopup.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEnter {
 			app.Stop()
 			db, err := sql.Open("sqlite3", file.Name())
@@ -72,9 +77,9 @@ func main() {
 			sqlscan.Select(context.Background(), db, &notes, "SELECT id FROM saved_notes;")
 			note := Note{
 				Id:      uint32(len(notes)),
-				Name:    "testy balls",
-				Content: "oh my god",
-				Created: "now"}
+				Name:    titleInput.GetText(),
+				Content: textArea.GetText(),
+				Created: time.Now().Format("2006-01-02 15:04")}
 			note.Save(file.Name())
 			return nil
 		}
