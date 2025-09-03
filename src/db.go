@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"strconv"
 
 	"github.com/georgysavva/scany/v2/sqlscan"
 	_ "github.com/ncruces/go-sqlite3/driver"
@@ -40,6 +41,20 @@ func (db DB) GetNotes() []*Note {
 	notes := []*Note{}
 	sqlscan.Select(context.Background(), db.Db, &notes, "SELECT * FROM saved_notes;")
 	return notes
+}
+
+func (db DB) GetNote(id uint32) Note {
+	var notes = db.GetNotes()
+	for _, v := range notes {
+		if v.Id == id {
+			return *v
+		}
+	}
+	panic("No note found with ID " + strconv.FormatUint(uint64(id), 10))
+}
+
+func (db DB) DeleteNote(id uint32) {
+	db.Db.Exec(`DELETE FROM saved_notes WHERE id = ?1;`, id)
 }
 
 func (note Note) Save(file string) {

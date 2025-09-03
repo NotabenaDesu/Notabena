@@ -12,9 +12,18 @@ import (
 	"github.com/rivo/tview"
 )
 
-func Create(file *os.File, db DB) {
+func Create(file *os.File, db DB, edit uint32) {
 	app := tview.NewApplication()
 	textArea := tview.NewTextArea().SetWrap(true).SetPlaceholder("Write all your thoughts here! :D")
+	var prevNote Note
+	if edit != 0 {
+		prevNote = db.GetNote(edit)
+		textArea.SetText(prevNote.Content, false)
+	} else {
+		prevNote = Note{
+			Id: 0,
+		}
+	}
 	textArea.SetTitle("New note").SetBorder(true)
 	info := tview.NewTextView().SetText("Press Ctrl+X to save")
 	position := tview.NewTextView().SetDynamicColors(true).SetTextAlign(tview.AlignRight)
@@ -46,11 +55,12 @@ func Create(file *os.File, db DB) {
 			notes := []*Note{}
 			sqlscan.Select(context.Background(), db.Db, &notes, "SELECT id FROM saved_notes;")
 			note := Note{
-				Id:      uint32(len(notes)),
+				Id:      uint32(len(notes)) + 1,
 				Name:    titleInput.GetText(),
 				Content: textArea.GetText(),
 				Created: time.Now().Format("2006-01-02 15:04")}
 			note.Save(file.Name())
+			List(file, db)
 			return nil
 		}
 		return event
@@ -59,6 +69,19 @@ func Create(file *os.File, db DB) {
 	pages.AddAndSwitchToPage("main", mainView, true).AddPage("saved", tview.NewGrid().SetColumns(0, 64, 0).SetRows(0, 22, 0).AddItem(savedPopup, 1, 1, 1, 1, 0, 0, true), true, false)
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlX {
+			if prevNote.Id != 0 {
+				app.Stop()
+				notes := []*Note{}
+				sqlscan.Select(context.Background(), db.Db, &notes, "SELECT id FROM saved_notes;")
+				note := Note{
+					Id:      prevNote.Id,
+					Name:    prevNote.Name,
+					Content: textArea.GetText(),
+					Created: prevNote.Created}
+				note.Save(file.Name())
+				List(file, db)
+				return nil
+			}
 			pages.ShowPage("saved")
 			return nil
 		}
