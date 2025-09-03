@@ -30,5 +30,5 @@ func main() {
 	}
 	defer file.Close()
 	db := InitDB(file.Name())
-	Create(file, db)
+	List(file, db)
 }

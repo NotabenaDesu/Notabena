@@ -1,8 +1,8 @@
 - [ ] Features
-  - [ ] Simple note-taking
+  - [x] Simple note-taking
     - [x] Creating notes
-    - [ ] Editing notes
-    - [ ] Removing notes
+    - [x] Editing notes
+    - [x] Removing notes
   - [ ] Not-so-simple note-taking
     - [ ] Simple Markdown support
     - [ ] Colors
